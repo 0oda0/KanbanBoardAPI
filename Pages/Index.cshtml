@@ -1,0 +1,166 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Kanban Board";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Kanban Board</h1>
+            <div class="d-flex justify-content-between align-items-center">
+                <div id="user-info" class="d-none">
+                    <span class="fw-bold me-2" id="username"></span>
+                    <button id="logout-btn" class="btn btn-sm btn-outline-danger">Выйти</button>
+                </div>
+                <div id="login-section">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#authModal">Войти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row kanban-board">
+        <!-- To Do Column -->
+        <div class="col-md-4 mb-4">
+            <div class="card kanban-column">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">To Do</h3>
+                </div>
+                <div class="card-body p-2 tasks-container" data-status="ToDo">
+                    <!-- Tasks will be loaded here -->
+                </div>
+                <div class="card-footer bg-light">
+                    <button class="btn btn-sm btn-success w-100 add-task-btn" data-status="ToDo">
+                        + Добавить задачу
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="col-md-4 mb-4">
+            <div class="card kanban-column">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="h5 mb-0">In Progress</h3>
+                </div>
+                <div class="card-body p-2 tasks-container" data-status="InProgress">
+                    <!-- Tasks will be loaded here -->
+                </div>
+                <div class="card-footer bg-light">
+                    <button class="btn btn-sm btn-success w-100 add-task-btn" data-status="InProgress">
+                        + Добавить задачу
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Done Column -->
+        <div class="col-md-4 mb-4">
+            <div class="card kanban-column">
+                <div class="card-header bg-success text-white">
+                    <h3 class="h5 mb-0">Done</h3>
+                </div>
+                <div class="card-body p-2 tasks-container" data-status="Done">
+                    <!-- Tasks will be loaded here -->
+                </div>
+                <div class="card-footer bg-light">
+                    <button class="btn btn-sm btn-success w-100 add-task-btn" data-status="Done">
+                        + Добавить задачу
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Авторизация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Вход</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Регистрация</button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="authTabsContent">
+                    <div class="tab-pane fade show active" id="login" role="tabpanel">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label">Логин</label>
+                                <input type="text" class="form-control" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Пароль</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Войти</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="register" role="tabpanel">
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label class="form-label">Логин</label>
+                                <input type="text" class="form-control" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Пароль</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalTitle">Новая задача</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <input type="hidden" id="taskId">
+                    <input type="hidden" id="taskStatus">
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <input type="text" class="form-control" id="taskTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дедлайн</label>
+                        <input type="datetime-local" class="form-control" id="taskDeadline">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveTaskBtn">Сохранить</button>
+                <button type="button" class="btn btn-danger d-none" id="deleteTaskBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>

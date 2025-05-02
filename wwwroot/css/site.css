@@ -1,0 +1,57 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+.kanban-column {
+    min-height: 70vh;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.task-card {
+    cursor: grab;
+    transition: transform 0.2s;
+}
+
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+.tasks-container {
+    min-height: 60vh;
+    padding: 10px;
+    transition: background-color 0.3s;
+}
+
+    .tasks-container.drag-over {
+        background-color: #e9f7fe;
+    }
+
+.sortable-ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
+}
+
+.sortable-chosen {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.sortable-drag {
+    opacity: 0;
+}

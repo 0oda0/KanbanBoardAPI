@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>KanbanBoardAPI</RootNamespace>
+		<NoWarn>NU1902</NoWarn>
+		<!-- Игнорировать предупреждения безопасности -->
+		<NoWarn>NU1605</NoWarn>
+		<!-- Игнорировать предупреждения безопасности -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Основные пакеты ASP.NET Core -->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
+
+		<!-- Entity Framework Core -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+
+		<!-- Безопасность (ВАЖНО: обновленная версия) -->
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
+		<!-- Изменили с 7.0.0 на 8.0.1 -->
+	</ItemGroup>
+
+</Project>
