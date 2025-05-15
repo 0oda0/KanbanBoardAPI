@@ -4,22 +4,34 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using KanbanBoardAPI.Data;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Добавление сервисов
-builder.Services.AddRazorPages(); // Добавляем поддержку Razor Pages
-builder.Services.AddControllers();
+// ========== КОНФИГУРАЦИЯ СЕРВИСОВ ========== //
+
+// Добавление сервисов для Razor Pages и API контроллеров
+builder.Services.AddRazorPages();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Настройка сериализации JSON для обработки циклических ссылок
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddEndpointsApiExplorer();
 
-// Настройка базы данных
+// Настройка подключения к базе данных SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Настройка JWT аутентификации
+// ========== КОНФИГУРАЦИЯ АУТЕНТИФИКАЦИИ ========== //
+
+// Получение настроек JWT из конфигурации
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
 
+// Настройка JWT аутентификации
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,15 +48,18 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = jwtSettings["Audience"],
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero // Точное время без допуска
     };
 });
 
-// Настройка Swagger
+// ========== КОНФИГУРАЦИЯ SWAGGER ========== //
+
+// Настройка документации API с помощью Swagger
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Kanban Board API", Version = "v1" });
 
+    // Добавление поддержки JWT в Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme.",
@@ -70,9 +85,24 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// ========== НАСТРОЙКА CORS ========== //
+
+// Разрешение всех источников, методов и заголовков (для разработки)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
-// Конфигурация middleware
+// ========== КОНФИГУРАЦИЯ MIDDLEWARE ========== //
+
+// В development режиме показываем подробные ошибки и Swagger UI
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -86,25 +116,32 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseHsts(); // HTTP Strict Transport Security
 }
 
+// Перенаправление на HTTPS и обработка статических файлов
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // Важно для работы статических файлов
+app.UseStaticFiles();
 
+// Включение маршрутизации и CORS
 app.UseRouting();
+app.UseCors("AllowAll");
 
+// Включение аутентификации и авторизации
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorPages(); // Добавляем маршрутизацию для Razor Pages
+// Настройка конечных точек
+app.MapRazorPages();
 app.MapControllers();
 
-// Применение миграций
+// ========== ПРИМЕНЕНИЕ МИГРАЦИЙ БАЗЫ ДАННЫХ ========== //
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+    await db.Database.MigrateAsync(); // Автоматическое применение миграций
 }
 
+// Запуск приложения
 app.Run();
